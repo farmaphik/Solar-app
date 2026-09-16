@@ -1,7 +1,5 @@
 import tkinter as tk
-from tkinter import ttk
-from tkinter import messagebox
-from tkinter import filedialog
+from tkinter import ttk, messagebox
 import os
 import string
 import random
@@ -31,14 +29,11 @@ class SolarAppV1:
         self.registered_this_session = False
 
         # Верхняя панель
-        self.top_bar = ttk.Frame(self.root)
-        self.top_bar.pack(side="top", fill="x")
+        top_bar = ttk.Frame(self.root)
+        top_bar.pack(side="top", fill="x")
 
         self.account_label = ttk.Label(
-            self.top_bar,
-            text="Гость",
-            anchor="e",
-            cursor="hand2"
+            top_bar, text="Гость", anchor="e", cursor="hand2"
         )
         self.account_label.pack(side="right", padx=10, pady=5)
         self.account_label.bind("<Button-1>", self.show_password)
@@ -49,30 +44,9 @@ class SolarAppV1:
 
         # Статус-бар
         self.status_var = tk.StringVar(value="Готово")
-        self.status_bar = ttk.Label(
-            self.root,
-            textvariable=self.status_var,
-            anchor="w",
-            relief="sunken"
-        )
-        self.status_bar.pack(side="bottom", fill="x")
-
-        # Фреймы вкладок
-        self.auth_frame = ttk.Frame(self.notebook)
-        self.reg_frame = ttk.Frame(self.notebook)
-        self.calk_frame = ttk.Frame(self.notebook)
-        self.info_frame = ttk.Frame(self.notebook)
-        self.password_frame = ttk.Frame(self.notebook)
-        self.note_frame = ttk.Frame(self.notebook)
-        self.help_frame = ttk.Frame(self.notebook)
-
-        self.notebook.add(self.auth_frame, text="Авторизация")
-        self.notebook.add(self.reg_frame, text="Регистрация")
-        self.notebook.add(self.calk_frame, text="Калькулятор")
-        self.notebook.add(self.info_frame, text="Информация")
-        self.notebook.add(self.password_frame, text="Генерация пароля")
-        self.notebook.add(self.note_frame, text="Заметки")
-        self.notebook.add(self.help_frame, text="Тех. Поддержка")
+        ttk.Label(
+            self.root, textvariable=self.status_var, anchor="w", relief="sunken"
+        ).pack(side="bottom", fill="x")
 
         # Создаём вкладки
         self.create_auth_tab()
@@ -106,15 +80,18 @@ class SolarAppV1:
     # ==================== АВТОРИЗАЦИЯ ====================
 
     def create_auth_tab(self):
-        ttk.Label(self.auth_frame, text="Логин:").pack(pady=10)
-        self.auth_entry1 = ttk.Entry(self.auth_frame)
+        frame = ttk.Frame(self.notebook)
+        self.notebook.add(frame, text="Авторизация")
+
+        ttk.Label(frame, text="Логин:").pack(pady=10)
+        self.auth_entry1 = ttk.Entry(frame)
         self.auth_entry1.pack(pady=5)
 
-        ttk.Label(self.auth_frame, text="Пароль:").pack(pady=10)
-        self.auth_entry2 = ttk.Entry(self.auth_frame, show="*")
+        ttk.Label(frame, text="Пароль:").pack(pady=10)
+        self.auth_entry2 = ttk.Entry(frame, show="*")
         self.auth_entry2.pack(pady=5)
 
-        ttk.Button(self.auth_frame, text="Войти", command=self.login).pack(pady=10)
+        ttk.Button(frame, text="Войти", command=self.login).pack(pady=10)
 
         if not os.path.exists("login.txt"):
             open("login.txt", "w").close()
@@ -129,9 +106,7 @@ class SolarAppV1:
 
         with open("login.txt", "r", encoding="utf-8") as f:
             accounts = dict(
-                line.strip().split(":", 1)
-                for line in f
-                if ":" in line
+                line.strip().split(":", 1) for line in f if ":" in line
             )
 
         if accounts.get(login) != hash_password(password):
@@ -143,25 +118,27 @@ class SolarAppV1:
         self.current_password = password
         self.account_label.config(text=f"👤 {login}")
         self.set_status(f"Вход выполнен: {login}")
-
         messagebox.showinfo("Авторизация", f"Добро пожаловать, {login}!")
 
     # ==================== РЕГИСТРАЦИЯ ====================
 
     def create_reg_tab(self):
-        ttk.Label(self.reg_frame, text="Создать логин:").pack(pady=10)
-        self.reg_entry1 = ttk.Entry(self.reg_frame)
+        frame = ttk.Frame(self.notebook)
+        self.notebook.add(frame, text="Регистрация")
+
+        ttk.Label(frame, text="Создать логин:").pack(pady=10)
+        self.reg_entry1 = ttk.Entry(frame)
         self.reg_entry1.pack(pady=5)
 
-        ttk.Label(self.reg_frame, text="Пароль:").pack(pady=10)
-        self.reg_entry2 = ttk.Entry(self.reg_frame, show="*")
+        ttk.Label(frame, text="Пароль:").pack(pady=10)
+        self.reg_entry2 = ttk.Entry(frame, show="*")
         self.reg_entry2.pack(pady=5)
 
-        ttk.Label(self.reg_frame, text="Повторите пароль:").pack(pady=10)
-        self.reg_entry3 = ttk.Entry(self.reg_frame, show="*")
+        ttk.Label(frame, text="Повторите пароль:").pack(pady=10)
+        self.reg_entry3 = ttk.Entry(frame, show="*")
         self.reg_entry3.pack(pady=5)
 
-        self.reg_button = ttk.Button(self.reg_frame, text="Зарегистрироваться", command=self.register)
+        self.reg_button = ttk.Button(frame, text="Зарегистрироваться", command=self.register)
         self.reg_button.pack(pady=10)
 
     def register(self):
@@ -208,21 +185,32 @@ class SolarAppV1:
     # ==================== КАЛЬКУЛЯТОР ====================
 
     def create_calk_tab(self):
-        ttk.Label(self.calk_frame, text="Введите первое число:").pack(pady=5)
-        self.calk_entry1 = ttk.Entry(self.calk_frame)
+        frame = ttk.Frame(self.notebook)
+        self.notebook.add(frame, text="Калькулятор")
+
+        ttk.Label(frame, text="Введите первое число:").pack(pady=5)
+        self.calk_entry1 = ttk.Entry(frame)
         self.calk_entry1.pack(pady=5)
 
-        ttk.Label(self.calk_frame, text="Введите операцию (+, -, *, /):").pack(pady=5)
-        self.calk_entry2 = ttk.Entry(self.calk_frame)
-        self.calk_entry2.pack(pady=5)
+        ttk.Label(frame, text="Выберите операцию:").pack(pady=5)
+        self.operation_var = tk.StringVar(value="+")
+        self.operation_combo = ttk.Combobox(
+            frame,
+            textvariable=self.operation_var,
+            values=["+", "-", "*", "/"],
+            state="readonly",
+            justify="center",
+            width=10
+        )
+        self.operation_combo.pack(pady=5)
 
-        ttk.Label(self.calk_frame, text="Введите второе число:").pack(pady=5)
-        self.calk_entry3 = ttk.Entry(self.calk_frame)
+        ttk.Label(frame, text="Введите второе число:").pack(pady=5)
+        self.calk_entry3 = ttk.Entry(frame)
         self.calk_entry3.pack(pady=5)
 
-        ttk.Button(self.calk_frame, text="Посчитать", command=self.calculate).pack(pady=10)
+        ttk.Button(frame, text="Посчитать", command=self.calculate).pack(pady=10)
 
-        self.calk_result = ttk.Label(self.calk_frame, text="Результат:")
+        self.calk_result = ttk.Label(frame, text="Результат:")
         self.calk_result.pack(pady=10)
 
     def calculate(self):
@@ -235,7 +223,7 @@ class SolarAppV1:
 
         try:
             num1 = float(self.calk_entry1.get())
-            operation = self.calk_entry2.get()
+            operation = self.operation_var.get()
             num2 = float(self.calk_entry3.get())
         except ValueError:
             messagebox.showwarning("Ошибка", "Введите числа правильно")
@@ -251,14 +239,13 @@ class SolarAppV1:
 
         result = operations[operation](num1, num2)
         self.calk_result.config(text=f"Результат: {result}")
-
-        # Уведомление с ответом
         messagebox.showinfo("Результат", f"Ответ: {result}")
 
     # ==================== ГЕНЕРАЦИЯ ПАРОЛЯ ====================
 
     def create_password_tab(self):
-        frame = self.password_frame
+        frame = ttk.Frame(self.notebook)
+        self.notebook.add(frame, text="Генерация пароля")
 
         ttk.Label(frame, text="Длина пароля:").pack(pady=(15, 0))
         self.length_var = tk.StringVar(value="12")
@@ -294,9 +281,9 @@ class SolarAppV1:
         if length <= 0:
             messagebox.showerror("Ошибка ввода", "Длина пароля должна быть больше нуля.")
             return
-        
+
         if length >= 100:
-            messagebox.showerror("Ошибка","Максимальная длинна 100 символов!")
+            messagebox.showerror("Ошибка", "Максимальная длинна 100 символов!")
             return
 
         characters = ""
@@ -319,33 +306,23 @@ class SolarAppV1:
     # ==================== ЗАМЕТКИ ====================
 
     def create_note_tab(self):
-        ttk.Label(self.note_frame, text="Заметки:").pack(pady=5)
+        frame = ttk.Frame(self.notebook)
+        self.notebook.add(frame, text="Заметки")
 
-        self.note_text = tk.Text(
-            self.note_frame,
-            wrap="word",
-            height=12
-        )
+        ttk.Label(frame, text="Заметки:").pack(pady=5)
+
+        self.note_text = tk.Text(frame, wrap="word", height=12)
         self.note_text.pack(pady=10, padx=10, fill="both", expand=True)
 
-        note_buttons = ttk.Frame(self.note_frame)
+        note_buttons = ttk.Frame(frame)
         note_buttons.pack(pady=(0, 5))
 
-        ttk.Button(
-            note_buttons,
-            text="Сохранить",
-            command=self.save_note
-        ).pack(side="left", padx=5)
+        ttk.Button(note_buttons, text="Сохранить", command=self.save_note).pack(side="left", padx=5)
+        ttk.Button(note_buttons, text="Очистить", command=self.clear_note).pack(side="left", padx=5)
 
-        ttk.Button(
-            note_buttons,
-            text="Очистить",
-            command=self.clear_note
-        ).pack(side="left", padx=5)
+        ttk.Label(frame, text="Сохранённые заметки:").pack(pady=(10, 0))
 
-        ttk.Label(self.note_frame, text="Сохранённые заметки:").pack(pady=(10, 0))
-
-        list_frame = ttk.Frame(self.note_frame)
+        list_frame = ttk.Frame(frame)
         list_frame.pack(pady=5, padx=10, fill="both")
 
         self.notes_listbox = tk.Listbox(list_frame, height=6)
@@ -354,23 +331,9 @@ class SolarAppV1:
         list_buttons = ttk.Frame(list_frame)
         list_buttons.pack(side="left", padx=5)
 
-        ttk.Button(
-            list_buttons,
-            text="Обновить",
-            command=self.refresh_notes_list
-        ).pack(pady=2, fill="x")
-
-        ttk.Button(
-            list_buttons,
-            text="Открыть",
-            command=self.open_selected_note
-        ).pack(pady=2, fill="x")
-
-        ttk.Button(
-            list_buttons,
-            text="Удалить",
-            command=self.delete_selected_note
-        ).pack(pady=2, fill="x")
+        ttk.Button(list_buttons, text="Обновить", command=self.refresh_notes_list).pack(pady=2, fill="x")
+        ttk.Button(list_buttons, text="Открыть", command=self.open_selected_note).pack(pady=2, fill="x")
+        ttk.Button(list_buttons, text="Удалить", command=self.delete_selected_note).pack(pady=2, fill="x")
 
         self.refresh_notes_list()
 
@@ -386,8 +349,7 @@ class SolarAppV1:
     def refresh_notes_list(self):
         self.notes_listbox.delete(0, "end")
         notes_dir = self.get_notes_dir()
-        files = sorted(os.listdir(notes_dir), reverse=True)
-        for filename in files:
+        for filename in sorted(os.listdir(notes_dir), reverse=True):
             self.notes_listbox.insert("end", filename)
 
     def open_selected_note(self):
@@ -413,16 +375,10 @@ class SolarAppV1:
             return
 
         filename = self.notes_listbox.get(selection[0])
-        confirmed = messagebox.askyesno(
-            "Удаление",
-            f"Удалить заметку «{filename}» навсегда?"
-        )
-        if not confirmed:
+        if not messagebox.askyesno("Удаление", f"Удалить заметку «{filename}» навсегда?"):
             return
 
-        filepath = os.path.join(self.get_notes_dir(), filename)
-        os.remove(filepath)
-
+        os.remove(os.path.join(self.get_notes_dir(), filename))
         self.refresh_notes_list()
         self.set_status(f"Заметка удалена: {filename}")
 
@@ -433,55 +389,55 @@ class SolarAppV1:
             messagebox.showwarning("Ошибка", "Заметка пустая, нечего сохранять")
             return
 
-        notes_dir = self.get_notes_dir()
         filename = datetime.now().strftime("note_%Y-%m-%d_%H-%M-%S.txt")
-        filepath = os.path.join(notes_dir, filename)
+        filepath = os.path.join(self.get_notes_dir(), filename)
 
         with open(filepath, "w", encoding="utf-8") as f:
             f.write(text)
 
         self.refresh_notes_list()
         self.set_status(f"Заметка сохранена: {filename}")
-
-        messagebox.showinfo(
-            "Заметка сохранена",
-            f"Файл создан:\n{filepath}"
-        )
+        messagebox.showinfo("Заметка сохранена", f"Файл создан:\n{filepath}")
 
     # ==================== ИНФОРМАЦИЯ ====================
 
     def create_info_tab(self):
-        ttk.Label(self.info_frame, text="Информация:").pack(pady=10)
+        frame = ttk.Frame(self.notebook)
+        self.notebook.add(frame, text="Информация")
 
-        self.info_text = tk.Text(self.info_frame, wrap="word", height=15)
+        ttk.Label(frame, text="Информация:").pack(pady=10)
 
-        self.info_text.insert(
+        info_text = tk.Text(frame, wrap="word", height=15)
+        info_text.insert(
             "1.0",
             "Данное приложение находится в Альфа-тесте.\n"
             "Создано 15.09.2026 учеником 7А класса.\n"
             "*С использованием ИИ*\n"
             "___________________________________\n"
-            "Версия 1.0.14 ALFA\n"
+            "Версия 1.0.16 ALFA\n"
             "Политики:\n"
             "1. Мы не собираем ваши данные. Все файлы хранятся локально на вашем устройстве!\n"
             "___________________________________\n"
             "Обновления:\n"
-            "1.0.14-Обновление Генерации пароля теперь максимальная длинна до 100 символов"
+            "1.0.15-Обновление Генерации пароля теперь максимальная длинна до 100 символов\n"
+            "1.0.16-Обновление операций в калькуляторе:Добавлен новый выбор операций,оптимизация функций и кода"
         )
-        self.info_text.config(state="disabled")
-        self.info_text.pack(pady=10, padx=10, fill="both", expand=True)
+        info_text.config(state="disabled")
+        info_text.pack(pady=10, padx=10, fill="both", expand=True)
 
     # ==================== ТЕХ. ПОДДЕРЖКА ====================
 
     def create_help_tab(self):
-        ttk.Label(self.help_frame, text="Тех. Поддержка").pack(pady=5)
+        frame = ttk.Frame(self.notebook)
+        self.notebook.add(frame, text="Тех. Поддержка")
 
-        ttk.Label(self.help_frame, text="Telegram:").pack(pady=5)
+        ttk.Label(frame, text="Тех. Поддержка").pack(pady=5)
+        ttk.Label(frame, text="Telegram:").pack(pady=5)
 
-        self.help_entry = ttk.Entry(self.help_frame, justify="center")
-        self.help_entry.insert(0, self.TELEGRAM_TAG_HELP)
-        self.help_entry.config(state="readonly")
-        self.help_entry.pack(pady=5)
+        help_entry = ttk.Entry(frame, justify="center")
+        help_entry.insert(0, self.TELEGRAM_TAG_HELP)
+        help_entry.config(state="readonly")
+        help_entry.pack(pady=5)
 
 
 if __name__ == "__main__":
