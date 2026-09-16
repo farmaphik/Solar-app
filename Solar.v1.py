@@ -16,7 +16,10 @@ class SolarAppV1:
 
     MIN_PASSWORD_LENGTH = 3
     TELEGRAM_TAG_HELP = "@xpon5"
-
+    GITHUB = "https://github.com/farmaphik/Solar-app"
+    Tik_Tok = "Скоро...."
+    Discord = "Скоро...."
+    
     def __init__(self, root):
         self.root = root
         self.root.title("Solar App V1")
@@ -411,16 +414,17 @@ class SolarAppV1:
         info_text.insert(
             "1.0",
             "Данное приложение находится в Альфа-тесте.\n"
-            "Создано 15.09.2026 учеником 7А класса.\n"
-            "*С использованием ИИ*\n"
+            "Создано 15.09.2026 учеником 7 класса.\n"
+            "*С использованием ИИ*(как искатель ошибок)\n"
             "___________________________________\n"
-            "Версия 1.0.16 ALFA\n"
+            "Версия 1.0.17 ALFA\n"
             "Политики:\n"
             "1. Мы не собираем ваши данные. Все файлы хранятся локально на вашем устройстве!\n"
             "___________________________________\n"
             "Обновления:\n"
             "1.0.15-Обновление Генерации пароля теперь максимальная длинна до 100 символов\n"
-            "1.0.16-Обновление операций в калькуляторе:Добавлен новый выбор операций,оптимизация функций и кода"
+            "1.0.16-Обновление операций в калькуляторе:Добавлен новый выбор операций,оптимизация функций и кода\n"
+            "1.0.17-Обновление Тех поддержки, теперь больше способов поддержки и также наш проект на github и т.д!"
         )
         info_text.config(state="disabled")
         info_text.pack(pady=10, padx=10, fill="both", expand=True)
@@ -436,6 +440,27 @@ class SolarAppV1:
 
         help_entry = ttk.Entry(frame, justify="center")
         help_entry.insert(0, self.TELEGRAM_TAG_HELP)
+        help_entry.config(state="readonly")
+        help_entry.pack(pady=5)
+        
+        ttk.Label(frame, text="Сылка на github проекта:").pack(pady=5)
+        
+        help_entry = ttk.Entry(frame, justify="center")
+        help_entry.insert(0, self.GITHUB)
+        help_entry.config(state="readonly")
+        help_entry.pack(pady=5)
+        
+        ttk.Label(frame,text="TikTok Проекта:").pack(pady=5)
+        
+        help_entry = ttk.Entry(frame, justify="center")
+        help_entry.insert(0, self.Tik_Tok)
+        help_entry.config(state="readonly")
+        help_entry.pack(pady=5)
+        
+        ttk.Label(frame,text="Discord Проекта:").pack(pady=5)
+        
+        help_entry = ttk.Entry(frame, justify="center")
+        help_entry.insert(0, self.Discord)
         help_entry.config(state="readonly")
         help_entry.pack(pady=5)
 
