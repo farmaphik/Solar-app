@@ -17,14 +17,14 @@ class SolarAppV1:
     MIN_PASSWORD_LENGTH = 3
     TELEGRAM_TAG_HELP = "@xpon5"
     GITHUB = "https://github.com/farmaphik/Solar-app"
-    Tik_Tok = "Скоро...."
-    Discord = "Скоро...."
-    
+    TIKTOK = "https://tiktok.com/@solar_app"
+    DISCORD = "https://discord.gg/hfMMPYBVUu"
+
     def __init__(self, root):
         self.root = root
         self.root.title("Solar App V1")
         self.root.geometry("900x600")
-        self.root.resizable(False, False)
+        self.root.resizable(True, True)
 
         # Текущий пользователь
         self.current_login = None
@@ -51,14 +51,17 @@ class SolarAppV1:
             self.root, textvariable=self.status_var, anchor="w", relief="sunken"
         ).pack(side="bottom", fill="x")
 
-        # Создаём вкладки
+        # Создаём вкладки (каждый метод сам добавляет свою вкладку в notebook)
         self.create_auth_tab()
         self.create_reg_tab()
         self.create_calk_tab()
-        self.create_info_tab()
         self.create_password_tab()
         self.create_note_tab()
+        self.create_time_tab()
+        self.create_conv_tab()
         self.create_help_tab()
+        self.create_info_tab()
+        
 
     def set_status(self, text):
         self.status_var.set(text)
@@ -66,7 +69,7 @@ class SolarAppV1:
     # ---------------- Общая проверка пароля ----------------
     def validate_password(self, password):
         if len(password) < self.MIN_PASSWORD_LENGTH:
-            return False, f"Пароль должен содержать минимум {self.MIN_PASSWORD_LENGTH} символа(ов)"
+            return False, f"Пароль должен содержать минимум {self.MIN_PASSWORD_LENGTH} символа"
         if " " in password:
             return False, "Пароль не должен содержать пробелы"
         return True, ""
@@ -200,7 +203,7 @@ class SolarAppV1:
         self.operation_combo = ttk.Combobox(
             frame,
             textvariable=self.operation_var,
-            values=["+", "-", "*", "/"],
+            values=["+", "-", "*", "/", "**", "//"],
             state="readonly",
             justify="center",
             width=10
@@ -222,25 +225,32 @@ class SolarAppV1:
             "-": lambda a, b: a - b,
             "*": lambda a, b: a * b,
             "/": lambda a, b: a / b,
+            "**": lambda a, b: a ** b,
+            "//": lambda a, b: a // b,
         }
 
         try:
             num1 = float(self.calk_entry1.get())
-            operation = self.operation_var.get()
             num2 = float(self.calk_entry3.get())
         except ValueError:
             messagebox.showwarning("Ошибка", "Введите числа правильно")
             return
 
+        operation = self.operation_var.get()
         if operation not in operations:
-            messagebox.showwarning("Ошибка", "Используйте только + - * /")
+            messagebox.showwarning("Ошибка", "Используйте только + - * / ** //")
             return
 
-        if operation == "/" and num2 == 0:
+        if operation in ("/", "//") and num2 == 0:
             messagebox.showwarning("Ошибка", "На ноль делить нельзя")
             return
 
-        result = operations[operation](num1, num2)
+        try:
+            result = operations[operation](num1, num2)
+        except (ValueError, OverflowError) as error:
+            messagebox.showwarning("Ошибка", f"Не удалось вычислить: {error}")
+            return
+
         self.calk_result.config(text=f"Результат: {result}")
         messagebox.showinfo("Результат", f"Ответ: {result}")
 
@@ -248,7 +258,7 @@ class SolarAppV1:
 
     def create_password_tab(self):
         frame = ttk.Frame(self.notebook)
-        self.notebook.add(frame, text="Генерация пароля")
+        self.notebook.add(frame, text="Генератор паролей")
 
         ttk.Label(frame, text="Длина пароля:").pack(pady=(15, 0))
         self.length_var = tk.StringVar(value="12")
@@ -286,7 +296,7 @@ class SolarAppV1:
             return
 
         if length >= 100:
-            messagebox.showerror("Ошибка", "Максимальная длинна 100 символов!")
+            messagebox.showerror("Ошибка", "Максимальная длина 100 символов!")
             return
 
         characters = ""
@@ -305,6 +315,104 @@ class SolarAppV1:
 
         password = "".join(random.choice(characters) for _ in range(length))
         self.password_var.set(password)
+
+    # ==================== ТАЙМЕР ====================
+
+    def create_time_tab(self):
+        frame = ttk.Frame(self.notebook)
+        self.notebook.add(frame, text="Таймер")
+
+        ttk.Label(frame, text="Таймер обратного отсчёта", font=("", 12, "bold")).pack(pady=15)
+
+        input_frame = ttk.Frame(frame)
+        input_frame.pack(pady=5)
+
+        ttk.Label(input_frame, text="Минуты:").grid(row=0, column=0, padx=5)
+        self.timer_minutes_var = tk.StringVar(value="0")
+        ttk.Entry(input_frame, textvariable=self.timer_minutes_var, width=5).grid(row=0, column=1, padx=5)
+
+        ttk.Label(input_frame, text="Секунды:").grid(row=0, column=2, padx=5)
+        self.timer_seconds_var = tk.StringVar(value="30")
+        ttk.Entry(input_frame, textvariable=self.timer_seconds_var, width=5).grid(row=0, column=3, padx=5)
+
+        self.timer_display = ttk.Label(frame, text="00:00", font=("Consolas", 32))
+        self.timer_display.pack(pady=20)
+
+        buttons_frame = ttk.Frame(frame)
+        buttons_frame.pack(pady=10)
+
+        ttk.Button(buttons_frame, text="Старт", command=self.start_timer).pack(side="left", padx=5)
+        ttk.Button(buttons_frame, text="Пауза", command=self.pause_timer).pack(side="left", padx=5)
+        ttk.Button(buttons_frame, text="Сброс", command=self.reset_timer).pack(side="left", padx=5)
+
+        self.timer_remaining = 0
+        self.timer_running = False
+        self.timer_job = None
+
+    def start_timer(self):
+        if self.timer_running:
+            return
+
+        if self.timer_remaining <= 0:
+            try:
+                minutes = int(self.timer_minutes_var.get())
+                seconds = int(self.timer_seconds_var.get())
+            except ValueError:
+                messagebox.showwarning("Ошибка", "Введите целые числа для минут и секунд")
+                return
+
+            if minutes < 0 or seconds < 0:
+                messagebox.showwarning("Ошибка", "Время не может быть отрицательным")
+                return
+
+            self.timer_remaining = minutes * 60 + seconds
+            if self.timer_remaining <= 0:
+                messagebox.showwarning("Ошибка", "Укажите время больше нуля")
+                return
+            
+            if minutes >= 999:
+                messagebox.showerror("Ошибка","Больше 999 минут выставить нельзя!")
+                return
+                
+            if seconds >= 60:
+                messagebox.showerror("Ошибка","Больше 60 секунд выставить нельзя!")
+                return
+
+        self.timer_running = True
+        self.set_status("Таймер запущен")
+        self.tick_timer()
+
+    def tick_timer(self):
+        if not self.timer_running:
+            return
+
+        minutes, seconds = divmod(self.timer_remaining, 60)
+        self.timer_display.config(text=f"{minutes:02d}:{seconds:02d}")
+
+        if self.timer_remaining <= 0:
+            self.timer_running = False
+            self.set_status("Время вышло")
+            messagebox.showinfo("Таймер", "Время вышло!")
+            return
+
+        self.timer_remaining -= 1
+        self.timer_job = self.root.after(1000, self.tick_timer)
+
+    def pause_timer(self):
+        if self.timer_job is not None:
+            self.root.after_cancel(self.timer_job)
+            self.timer_job = None
+        self.timer_running = False
+        self.set_status("Таймер на паузе")
+
+    def reset_timer(self):
+        if self.timer_job is not None:
+            self.root.after_cancel(self.timer_job)
+            self.timer_job = None
+        self.timer_running = False
+        self.timer_remaining = 0
+        self.timer_display.config(text="00:00")
+        self.set_status("Таймер сброшен")
 
     # ==================== ЗАМЕТКИ ====================
 
@@ -401,6 +509,14 @@ class SolarAppV1:
         self.refresh_notes_list()
         self.set_status(f"Заметка сохранена: {filename}")
         messagebox.showinfo("Заметка сохранена", f"Файл создан:\n{filepath}")
+        
+    #---------------------Конвертер-----------------------
+    def create_conv_tab(self):
+        frame = ttk.Frame(self.notebook)
+        self.notebook.add(frame, text="Конвертор")
+        
+        ttk.Label(frame,text="Скоро...").pack(pady=100)
+        
 
     # ==================== ИНФОРМАЦИЯ ====================
 
@@ -417,14 +533,18 @@ class SolarAppV1:
             "Создано 15.09.2026 учеником 7 класса.\n"
             "*С использованием ИИ*(как искатель ошибок)\n"
             "___________________________________\n"
-            "Версия 1.0.17 ALFA\n"
+            "Версия 1.0.18 ALFA\n"
             "Политики:\n"
             "1. Мы не собираем ваши данные. Все файлы хранятся локально на вашем устройстве!\n"
             "___________________________________\n"
             "Обновления:\n"
-            "1.0.15-Обновление Генерации пароля теперь максимальная длинна до 100 символов\n"
-            "1.0.16-Обновление операций в калькуляторе:Добавлен новый выбор операций,оптимизация функций и кода\n"
-            "1.0.17-Обновление Тех поддержки, теперь больше способов поддержки и также наш проект на github и т.д!"
+            "1.0.15-Обновление Генерации пароля теперь максимальная длина до 100 символов\n"
+            "1.0.16-Обновление операций в калькуляторе: добавлен новый выбор операций, "
+            "оптимизация функций и кода\n"
+            "1.0.17-Обновление Тех поддержки, теперь больше способов поддержки и также "
+            "наш проект на github и т.д!\n"
+            "1.0.18-Обновление счёта калькулятора, добавлены новые операции (//, **), "
+            "добавлена вкладка таймер и к ней новые функции,Также добавлена новая вкладка Конвентор"
         )
         info_text.config(state="disabled")
         info_text.pack(pady=10, padx=10, fill="both", expand=True)
@@ -442,25 +562,25 @@ class SolarAppV1:
         help_entry.insert(0, self.TELEGRAM_TAG_HELP)
         help_entry.config(state="readonly")
         help_entry.pack(pady=5)
-        
-        ttk.Label(frame, text="Сылка на github проекта:").pack(pady=5)
-        
+
+        ttk.Label(frame, text="Ссылка на github проекта:").pack(pady=5)
+
         help_entry = ttk.Entry(frame, justify="center")
         help_entry.insert(0, self.GITHUB)
         help_entry.config(state="readonly")
         help_entry.pack(pady=5)
-        
-        ttk.Label(frame,text="TikTok Проекта:").pack(pady=5)
-        
+
+        ttk.Label(frame, text="TikTok Проекта:").pack(pady=5)
+
         help_entry = ttk.Entry(frame, justify="center")
-        help_entry.insert(0, self.Tik_Tok)
+        help_entry.insert(0, self.TIKTOK)
         help_entry.config(state="readonly")
         help_entry.pack(pady=5)
-        
-        ttk.Label(frame,text="Discord Проекта:").pack(pady=5)
-        
+
+        ttk.Label(frame, text="Discord Проекта:").pack(pady=5)
+
         help_entry = ttk.Entry(frame, justify="center")
-        help_entry.insert(0, self.Discord)
+        help_entry.insert(0, self.DISCORD)
         help_entry.config(state="readonly")
         help_entry.pack(pady=5)
 
