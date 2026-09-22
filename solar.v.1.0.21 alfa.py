@@ -436,7 +436,7 @@ class SolarAppV1:
                 messagebox.showwarning("Ошибка", "Время не может быть отрицательным")
                 return
 
-            self.timer_remaining = minutes * 61 + seconds
+            self.timer_remaining = minutes * 60 + seconds
             if self.timer_remaining <= 0:
                 messagebox.showwarning("Ошибка", "Укажите время больше нуля")
                 return
