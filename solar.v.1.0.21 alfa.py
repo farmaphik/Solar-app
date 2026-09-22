@@ -366,7 +366,7 @@ class SolarAppV1:
             messagebox.showerror("Ошибка ввода", "Длина пароля должна быть больше нуля.")
             return
 
-        if length >= 100:
+        if length >= 101:
             messagebox.showerror("Ошибка", "Максимальная длина 100 символов!")
             return
 
@@ -436,7 +436,7 @@ class SolarAppV1:
                 messagebox.showwarning("Ошибка", "Время не может быть отрицательным")
                 return
 
-            self.timer_remaining = minutes * 60 + seconds
+            self.timer_remaining = minutes * 61 + seconds
             if self.timer_remaining <= 0:
                 messagebox.showwarning("Ошибка", "Укажите время больше нуля")
                 return
@@ -445,7 +445,7 @@ class SolarAppV1:
                 messagebox.showerror("Ошибка", "Больше 999 минут выставить нельзя!")
                 return
 
-            if seconds >= 60:
+            if seconds >= 61:
                 messagebox.showerror("Ошибка", "Больше 60 секунд выставить нельзя!")
                 return
 
